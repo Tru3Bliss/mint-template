@@ -9,7 +9,7 @@ import { MenuList } from "./menu";
 
 const NavBar = (props) => {
   const context = useAppContext()
-  const { connectWallet, wallet, address } = props
+  const { wallet, address } = props
   const [expand, setExpand] = useState(false)
   console.log(context.onBoard)
   return (

@@ -27,6 +27,10 @@ const Layout = ({
 
 
   useEffect(async () => {
+    const _web3 = await getWeb3()
+    setWeb3(_web3)
+  }, [])
+  useEffect(async () => {
     const onBoard = initOnboard({
       address: context.setAddress,
       network: setNetwork,
@@ -35,6 +39,12 @@ const Layout = ({
         if (wallet.provider) {
           context.setWallet(wallet)
           context.setProvider(new ethers.providers.Web3Provider(wallet.provider, 'any'))
+          console.log("web3?", web3)
+          if(web3){
+            const contract = new web3.eth.Contract(NFT_TREES_ABI, CONTRACT_ADDRESS)
+            context.setContract(contract)
+            console.log("contract", contract)
+          }
         } else {
           console.log(wallet)
           context.setProvider(null)
@@ -46,64 +56,30 @@ const Layout = ({
     context.setOnBoard(onBoard)
     context.setNotify(initNotify())
     // addWalletListener()
-    const _web3 = await getWeb3()
-    setWeb3(_web3)
-  }, [])
+  }, [web3])
 
-
-  console.log("ADDRES",CONTRACT_ADDRESS)
-  useEffect(() => {
-    if (connected && web3) {
-      const contract = new web3.eth.Contract(NFT_TREES_ABI, CONTRACT_ADDRESS)
-      context.setContract(contract)
-      console.log("contract", contract)
-    }
-  }, [connected, web3])
 
   useEffect(() => {
     const previouslySelectedWallet =
       window.localStorage.getItem('selectedWallet')
     if (previouslySelectedWallet && context.onBoard) {
-      if (!connected) {
-        context.onBoard.walletSelect(previouslySelectedWallet)
-        setConnected(true)
-      }
+      context.onBoard.walletSelect(previouslySelectedWallet)
     }
   }, [context.onBoard])
 
 
   useEffect(() => {
     setWeb3(window.__web3 || null);
-    setConnected(window.__connected || false);
   }, []);
 
 
-  const connectHandler = async () => {
-    if (context.onBoard !== null) {
-      if (context.status !== 1) {
-        if (!(await context.onBoard.walletSelect())) {
-          return;
-        }
-        setConnected(await context.onBoard.walletCheck())
-      }
-      else {
-        context.notify.notification({
-          eventCode: 'dbUpdate',
-          type: 'info',
-          message:
-            'Wallet Already Connected'
-        })
-        setConnected(true)
-      }
-    }
-  }
 
   return (
     <div className='flex flex-col items-center min-h-screen justify-between relative overflow-x-hidden text-app-black-100'>
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <NavBar connectWallet={connectHandler} address={context.address} wallet={context.wallet} />
+      <NavBar address={context.address} wallet={context.wallet} />
       <main className="w-full flex-1">
         {children}
       </main>
