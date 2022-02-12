@@ -21,7 +21,7 @@ const NavBar = (props) => {
         ))}
         {context.onBoard && <>
           {!address ? <button onClick={() => {
-            if (!wallet)
+            if (!wallet || !wallet.provider)
               context.onBoard.walletSelect()
             else if (wallet.provider)
               context.onBoard.walletCheck()

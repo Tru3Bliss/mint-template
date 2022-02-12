@@ -23,12 +23,6 @@ const HomePage = (props) => {
   const mint = async () => {
     if (context.contract) {
       if (count > 0 && coast > 0) {
-        const { update } = context.notify.notification({
-          eventCode: 'dbUpdate',
-          type: 'pending',
-          message:
-            'Transaction is on Pending'
-        })
         console.log(context.address)
         if (!context.address) {
           if (!context.wallet)
@@ -37,6 +31,12 @@ const HomePage = (props) => {
             context.onBoard.walletCheck()
           return
         }
+        const { update } = context.notify.notification({
+          eventCode: 'dbUpdate',
+          type: 'pending',
+          message:
+            'Transaction is on Pending'
+        })
         const hash = await context.contract.methods
           .mint(count)
           .send({ from: context.address, value: count * coast * 1000000000000000000 })
