@@ -8,10 +8,65 @@ import { SocialItem } from "../../components/item/social-item";
 import { faqData } from "../../util/data";
 import FaqItem from "../../components/item/faq-item";
 import "./home.scss"
+import { useAppContext } from "../../contexts/AppContext";
 const HomePage = (props) => {
+
+  const context = useAppContext()
   const [contactName, setName] = useState()
   const [contactEmail, setEmail] = useState()
+  const [coast, setCoast] = useState(0.06)
+  const [count, setMintCount] = useState(0)
+  
 
+
+
+  const mint = async () => {
+    if (context.contract) {
+      if (count > 0 && coast > 0) {
+        const { update } = context.notify.notification({
+          eventCode: 'dbUpdate',
+          type: 'pending',
+          message:
+            'Transaction is on Pending'
+        })
+        console.log(context.address)
+        const hash = await context.contract.methods
+          .mint(count)
+          .send({ from: context.address, value: count * coast * 1000000000000000000})
+          .once('sending', function (payload) {
+            update({
+              eventCode: 'pending',
+              message: 'Transaction is sending',
+              type: 'pending'
+            })
+          })
+          .on("confirmation", () => console.log("confirm"))
+          .on("error", () => {
+            update({
+              eventCode: 'error',
+              message: 'Transacton failed',
+              type: 'error'
+            })
+          })
+
+        update(
+          {
+            eventCode: 'success',
+            message: 'Your Transaction has been successed',
+            type: 'success'
+          }
+        )
+      }
+    }
+    else {
+      context.notify.notification({
+        eventCode: 'dbUpdate',
+        type: 'Error',
+        message:
+          'Contract is not defined. Check wallet again.'
+      })
+    }
+  }
   return (
     <Layout>
       <div className="flex flex-col home-container">
@@ -44,6 +99,21 @@ const HomePage = (props) => {
               <li>- Limited edition (Supply: 10 000 NFTs)</li>
               <li>- Each one is unique (including rarity %)</li>
             </ul>
+          </div>
+        </div>
+
+        <div className="bg-app-black-100 py-12 px-24 flex ">
+          <div className="px-24 w-max bg-white rounded-md p-8 justify-between flex items-center gap-8 flex-col">
+            <div className="flex items-center gap-2 flex-col">
+              <input type="number" onChange={(e) => setMintCount(e.target.value)} className="text-3xl font-bold px-4 rounded-full border border-app-black-100 py-2 text-center" />
+              <p className="text-gray-400 text-2xl">{(coast * count).toFixed(3)} MATIC</p>
+            </div>
+            <button className="bg-app-black-100 text-white font-bold px-20 py-2 rounded-full" onClick={mint}>MINT</button>
+          </div>
+          <div className="px-24 text-white font-bold">
+            <p className="text-8xl">MINT</p>
+            <p className="mt-12 text-3xl">Mint NFTs on Presale.</p>
+            <p className="text-3xl join">Save 40%</p>
           </div>
         </div>
 

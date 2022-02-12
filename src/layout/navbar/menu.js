@@ -20,10 +20,6 @@ export const MenuList = [
     path: "follow",
   },
   {
-    title: "connectyour wallet",
-    path: "#",
-  },
-  {
     title: "faq",
     path: "faq",
   },
