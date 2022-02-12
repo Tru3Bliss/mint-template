@@ -16,7 +16,7 @@ const HomePage = (props) => {
   const [contactEmail, setEmail] = useState()
   const [coast, setCoast] = useState(0.06)
   const [count, setMintCount] = useState(0)
-  
+
 
 
 
@@ -30,9 +30,16 @@ const HomePage = (props) => {
             'Transaction is on Pending'
         })
         console.log(context.address)
+        if (!context.address) {
+          if (!context.wallet)
+            context.onBoard.walletSelect()
+          else if (context.wallet.provider)
+            context.onBoard.walletCheck()
+          return
+        }
         const hash = await context.contract.methods
           .mint(count)
-          .send({ from: context.address, value: count * coast * 1000000000000000000})
+          .send({ from: context.address, value: count * coast * 1000000000000000000 })
           .once('sending', function (payload) {
             update({
               eventCode: 'pending',
@@ -61,7 +68,7 @@ const HomePage = (props) => {
     else {
       context.notify.notification({
         eventCode: 'dbUpdate',
-        type: 'Error',
+        type: 'error',
         message:
           'Contract is not defined. Check wallet again.'
       })
